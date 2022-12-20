@@ -5,6 +5,61 @@ import signal
 import os
 import numpy as np
 
+def add_ones(X):
+    return np.c_[np.ones((X.shape[0], 1)), X]
+
+
+def rmse(Y, T):
+    return np.sqrt(np.mean((T - Y) ** 2))
+
+
+def forward_layer1(X, U):
+    # Calculate the output of the first layer, using the tanh activation function
+    Zu = np.tanh(X @ U)
+    return Zu
+
+
+def forward_layer2(Zu, V):
+    Zv = np.tanh(Zu @ V.T)
+    return Zv
+
+
+def forward_layer3(Zv, W):
+    Y = Zv @ W.T
+    return Y
+
+
+def forward(X, U, V, W):
+    Zu = forward_layer1(X, U)
+    Zv = forward_layer2(Zu, V)
+    Y = forward_layer3(Zv, W)
+    return Zu, Zv, Y
+
+
+def backward_layer3(T, Y):
+    delta_layer3 = T - Y
+    return delta_layer3
+
+
+def backward_layer2(delta_layer3, W, Zv):
+    delta_layer2 = delta_layer3 @ W[:, 1:] * (1 - Zv ** 2)
+    return delta_layer2
+
+
+def backward_layer1(delta_layer2, V, Zu):
+    delta_layer1 = delta_layer2 @ V[:, 1:] * (1 - Zu ** 2)
+    return delta_layer1
+
+
+def gradients(X, T, Zu, Zv, Y, V, W):
+    delta_layer3 = backward_layer3(T, Y)
+    delta_layer2 = backward_layer2(delta_layer3, W, Zv)
+    delta_layer1 = backward_layer1(delta_layer2, V, Zu)
+    grad_U = X.T @ delta_layer1
+    grad_V = Zu.T @ delta_layer2
+    grad_W = Zv.T @ delta_layer3
+    return grad_U, grad_V, grad_W
+
 if run_my_solution:
     from A1mysolution import *
     # print('##############################################')
@@ -17,7 +72,8 @@ else:
 
     assignmentNumber = '1'
 
-    import subprocess, glob, pathlib
+    import subprocess, glob
+
     nb_name = '*-A{}*.ipynb'
     # nb_name = '*.ipynb'
     filename = next(glob.iglob(nb_name.format(assignmentNumber)), None)
@@ -25,9 +81,9 @@ else:
     if not filename:
         raise Exception('Please rename your notebook file to <Your Last Name>-A{}.ipynb'.format(assignmentNumber))
     with open('notebookcode.py', 'w') as outputFile:
-        subprocess.call(['jupyter', 'nbconvert', '--to', 'script',
-                         nb_name.format(assignmentNumber), '--stdout'], stdout=outputFile)
-    # from https://stackoverflow.com/questions/30133278/import-only-functions-from-a-python-file
+        subprocess.call(['jupyter', 'nbconvert', '--to', 'script', nb_name.format(assignmentNumber), '--stdout'], stdout=outputFile, shell=True)
+    # from https://stackoverflow.com/questions/30133278/import-only-functions-from-a-python-fileprocess = subprocess.Popen(command, stdout=tempFile, shell=True)
+
     import sys
     import ast
     import types
@@ -46,10 +102,7 @@ else:
     sys.modules['notebookcodeStripped'] = module
     exec(code, module.__dict__)
     # import notebookcodeStripped as useThisCode
-    from notebookcodeStripped import *
 
-
-    
 exec_grade = 0
 
 for func in ['add_ones', 'forward_layer1', 'forward_layer2', 'forward_layer3', 'forward',
@@ -155,8 +208,6 @@ try:
 except Exception as ex:
     print("\n--- 0/{pts} points. Exception raised in 'forward_layer1', 'forward_layer2', 'forward_layer3', or 'forward':\n".format(pts))
     print(ex)
-
-
 
 
 print('''\nTesting
@@ -282,9 +333,6 @@ except Exception as ex:
     print(ex)
 
 
-
-
-
 print('''\nTesting
     X = (np.arange(40).reshape(-1, 2) - 10) * 0.1
     T = X ** 3
@@ -361,9 +409,6 @@ except Exception as ex:
     print(ex)
 
 
-
-
-
 print('''\nTesting
     X = (np.arange(40).reshape(-1, 2) - 10) * 0.1
     T = X ** 3
@@ -401,10 +446,6 @@ try:
 except Exception as ex:
     print("\n--- 0/{} points. Functions 'train' or 'use' raised the exception\n".format(pts))
     print(ex)
-
-
-
-
 
 
 name = os.getcwd().split('/')[-1]

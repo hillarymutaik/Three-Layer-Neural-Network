@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.style import use
 
+
 def add_ones(X):
     return np.c_[np.ones((X.shape[0], 1)), X]
 
@@ -11,7 +12,8 @@ def rmse(Y, T):
 
 
 def forward_layer1(X, U):
-    Zu = np.tanh(X @ U.T)
+    # Calculate the output of the first layer, using the tanh activation function
+    Zu = np.tanh(X @ U)
     return Zu
 
 
@@ -47,7 +49,7 @@ def backward_layer1(delta_layer2, V, Zu):
     return delta_layer1
 
 
-def gradients(X, T, Zu, Zv, Y, U, V, W):
+def gradients(X, T, Zu, Zv, Y, V, W):
     delta_layer3 = backward_layer3(T, Y)
     delta_layer2 = backward_layer2(delta_layer3, W, Zv)
     delta_layer1 = backward_layer1(delta_layer2, V, Zu)
@@ -57,115 +59,6 @@ def gradients(X, T, Zu, Zv, Y, U, V, W):
     return grad_U, grad_V, grad_W
 
 
-def train(X, T, n_units_U, n_units_V, n_epochs, rho):
 
-
-
-    X_means = np.mean(X, axis=0)
-    X_stds = np.std(X, axis=0)
-    T_means = np.mean(T, axis=0)
-    T_stds = np.std(T, axis=0)
-
-    X = (X - X_means) / X_stds
-    T = (T - T_means) / T_stds
-
-    X = add_ones(X)
-
-    U = np.array([[1, 2, 3], [4, 5, 6]])  # 2 x 3 matrix, for 2 inputs (include constant 1) and 3 units
-    V = np.array([[-1, 3], [1, 3], [-2, 1], [2, -4]])  # 2 x 3 matrix, for 3 inputs (include constant 1) and 2 units
-    W = np.array([[-1], [2], [3]])  # 3 x 1 matrix, for 3 inputs (include constant 1) and 1 output unit
-    U.shape, V.shape, W.shape
-
-    Xtrain = np.arange(4).reshape(-1, 1)
-    Ttrain = Xtrain ** 2
-
-    Xtest = Xtrain + 0.5
-    Ttest = Xtest ** 2
-
-    Xtrain.shape, Ttrain.shape, Xtest.shape, Ttest.shape
-
-    X_means = np.mean(Xtrain, axis=0)
-    X_stds = np.std(Xtrain, axis=0)
-    Xtrain_st = (Xtrain - X_means) / X_stds
-    Xtrain_st
-
-    T_means = np.mean(Ttrain, axis=0)
-    T_stds = np.std(Ttrain, axis=0)
-    Ttrain_st = (Ttrain - T_means) / T_stds
-    Ttrain_st
-
-    Zu = forward_layer1(Xtrain_st, U)
-    Zu
-
-    Zv = forward_layer2(Zu, V)
-    Zv
-    # %%
-    Y = forward_layer3(Zv, W)
-    Y
-    # %%
-    Zu, Zv, Y = forward(Xtrain_st, U, V, W)
-    print(f'{Zu=}')
-    print(f'{Zv=}')
-    print(f'{Y=}')
-    # %%
-    delta_layer3 = backward_layer3(Ttrain_st, Y)
-    delta_layer3
-    # %%
-    delta_layer2 = backward_layer2(delta_layer3, W, Zv)
-    delta_layer2
-    # %%
-    delta_layer1 = backward_layer1(delta_layer2, V, Zu)
-    delta_layer1
-    # %%
-    grad_U, grad_V, grad_W = gradients(Xtrain_st, Ttrain_st, Zu, Zv, Y, U, V, W)
-    print(f'{grad_U=}')
-    print(f'{grad_V=}')
-    print(f'{grad_W=}')
-    # %%
-    Y = use(Xtrain, X_means, X_stds, T_means, T_stds, U, V, W)
-    Y
-    # %%
-    rmse_trace, U, V, W, X_means, X_stds, T_means, T_stds = train(Xtrain, Ttrain, 10, 10, 1000, 0.05)
-    # %%
-    Y = use(Xtrain, X_means, X_stds, T_means, T_stds, U, V, W)
-    np.hstack((Ttrain, Y))
-    # %%
-    plt.plot(rmse_trace)
-    plt.xlabel('Epoch')
-    plt.ylabel('RMSE')
-
-    n = 30
-    Xtrain = np.linspace(0., 20.0, n).reshape((n, 1)) - 10
-    Ttrain = 0.2 + 0.05 * (Xtrain + 10) + 0.4 * np.sin(Xtrain + 10) + 0.2 * np.random.normal(size=(n, 1))
-
-    Xtest = Xtrain + 0.1 * np.random.normal(size=(n, 1))
-    Ttest = 0.2 + 0.05 * (Xtest + 10) + 0.4 * np.sin(Xtest + 10) + 0.2 * np.random.normal(size=(n, 1))
-    # %%
-    rmse_trace, U, V, W, X_means, X_stds, T_means, T_stds = train(Xtrain, Ttrain, 5, 5, 100, 0.01)
-    # %%
-    plt.plot(rmse_trace)
-    plt.xlabel('Epoch')
-    plt.ylabel('RMSE')
-    # %%
-    Y = use(Xtrain, X_means, X_stds, T_means, T_stds, U, V, W)
-    # %%
-    plt.plot(Xtrain, Ttrain)
-    plt.plot(Xtrain, Y);
-    # %%
-    rmse_trace, U, V, W, X_means, X_stds, T_means, T_stds = train(Xtrain, Ttrain, 10, 5, 10000, 0.1)
-    Y = use(Xtrain, X_means, X_stds, T_means, T_stds, U, V, W)
-
-    plt.figure(figsize=(10, 4))
-    plt.subplot(1, 2, 1)
-    plt.plot(rmse_trace)
-    plt.xlabel('Epoch')
-    plt.ylabel('RMSE')
-
-    plt.subplot(1, 2, 2)
-    plt.plot(Xtrain, Ttrain, label='Train')
-    plt.plot(Xtrain, Y, label='Test')
-    plt.xlabel('Input')
-    plt.ylabel('Target and Output')
-    plt.legend()
 
 

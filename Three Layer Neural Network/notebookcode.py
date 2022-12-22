@@ -8,7 +8,7 @@
 
 # ## Requirements
 
-# In this assignment, you will start with code from lecture notes 07 and add code to do the following. You will implement and apply a neural network as in lecture notes 04 but now with an additional hidden layer.  The resulting three-layer network will consist of three weight matrices, `U`, `V` and `W`.
+# In this assignment, you will start with code from lecture notes 05 and add code to do the following. You will implement and apply a neural network as in lecture notes 04 but now with an additional hidden layer.  The resulting three-layer network will consist of three weight matrices, `U`, `V` and `W`.
 # 
 # First, implement the forward pass to calculate outputs of each layer:
 # 
@@ -100,7 +100,7 @@ Ttrain_st
 # In[182]:
 
 
-from A1mysolution import forward_layer1
+from assignment1 import forward_layer1
 
 Zu = forward_layer1(Xtrain_st, U)
 Zu

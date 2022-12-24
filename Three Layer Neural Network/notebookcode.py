@@ -1,58 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # A1: Three-Layer Neural Network
-
-# <h1>Table of Contents<span class="tocSkip"></span></h1>
-# <div class="toc"><ul class="toc-item"><li><span><a href="#Requirements" data-toc-modified-id="Requirements-1">Requirements</a></span></li><li><span><a href="#Example-Results" data-toc-modified-id="Example-Results-2">Example Results</a></span></li><li><span><a href="#Discussion" data-toc-modified-id="Discussion-3">Discussion</a></span></li></ul></div>
-
-# ## Requirements
-
-# In this assignment, you will start with code from lecture notes 05 and add code to do the following. You will implement and apply a neural network as in lecture notes 04 but now with an additional hidden layer.  The resulting three-layer network will consist of three weight matrices, `U`, `V` and `W`.
-# 
-# First, implement the forward pass to calculate outputs of each layer:
-# 
-# * Define functions `add_ones` and `rmse` by copying it from the lecture notes.
-# * Define function `forward_layer1` with two arguments, the input `X` and the first layer's weights `U`. It calculates and returns the output, `Zu`, of the first layer, using the `tanh` activation function.
-# * Define function `forward_layer2` with two arguments, the input `Zu` and the second layer's weights `V`. It calculates and returns the output, `Zv`, of the second layer, using the `tanh` activation function.
-# * Define function `forward_layer3` with two arguments, the input `Zv` and the third layer's weights `W`. It calculates and returns the output, `Y`, of the third layer as just the weighted sum of the inputs, without an activation function.
-# * Define function `forward` with four arguments, the input `X` to the network and the weight matrices, `U`, `V` and `W` of the three layers. It calls the above three functions and returns the outputs of all layers, `Zu`, `Zv`, `Y`.
-# 
-# Now implement the backward pass that calculates `delta` values for each layer:
-# 
-# * Define function `backward_layer3` that accepts as arguments the target values `T` and the predicted values `Y` calculated by function `forward`. It calculates and returns `delta_layer3` for layer 3, which is just `T - Y`.
-# * Define function `backward_layer2` that accepts as arguments `delta_layer3`, `W` and `Zv` and calculates and returns `delta` for layer 2 by back-propagating `delta_layer3` through `W`.
-# * Define function `backward_layer1` that accepts as arguments `delta_layer2`, `V` and `ZU` and calculates and returns `delta` for layer 1 by back-propagating `delta_layer2` through `V`.
-# * Define function `gradients` that accepts as arguments `X`, `T`, `Zu`, `Zv`, `Y`, `U`, `V`, and `W`, and calls the above three functions and uses the results to calculate the gradient of the mean squared error between `T` and `Y` with respect to `U`, `V` and `W` and returns those three gradients.
-# 
-# Now you can use `forward` and `gradients` to define the function `train` to train a three-layer neural network.
-#           
-# * Define function `train` that returns the resulting values of `U`, `V`, and `W` and the `X` and `T` standardization parameters.  Arguments are unstandardized `X` and `T`, the number of units in each of the two hidden layers, the number of epochs and the learning rate. This function standardizes `X` and `T`, initializes `U`, `V` and `W` to uniformly distributed random values between -0.1 and 0.1, and updates `U`, `V` and `W` by the learning rate times their gradients for `n_epochs` times as shown in lecture notes 04.  This function must call `forward`, `gradients` and `add_ones`.  It must also collect in a list called `rmse_trace` the root-mean-square errors for each epoch between `T` and `Y`.
-# 
-#       def train(X, T, n_units_U, n_units_V, n_epochs, rho):
-#           .
-#           .
-#           .
-#           return rmse_trace, U, V, W, X_means, X_stds, T_means, T_stds
-# 
-# Then we need a function `use` that calculates an output `Y` for new samples.  
-# 
-# * Define function `use` that accepts unstandardized `X`, standardization parameters, and weight matrices `U`, `V`, and `W` and returns the unstandardized output.
-# 
-#       def use(X, X_means, X_stds, T_means, T_stds, U, V, W):
-#           .
-#           .
-#           .
-#           Y = ....
-#           return Y
-
-# ## Example Results
-
-# In[177]:
-
-
 import numpy as np
 import matplotlib.pyplot as plt
+from IPython import get_ipython
+
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
@@ -100,7 +52,7 @@ Ttrain_st
 # In[182]:
 
 
-from assignment1 import forward_layer1
+from A1mysolution import forward_layer1
 
 Zu = forward_layer1(Xtrain_st, U)
 Zu
@@ -204,7 +156,6 @@ Y
 
 
 # In[ ]:
-
 
 from torchio.transforms.preprocessing.intensity.histogram_standardization import train
 
